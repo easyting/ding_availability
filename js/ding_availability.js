@@ -26,6 +26,7 @@
         $('#' + id).addClass('pending');
       });
 
+//	alert(settings.basePath + 'ding_availability/' + (settings.ding_availability_mode ? settings.ding_availability_mode: 'items') + '/' + ids.join(','));	
       // Fetch availability.
       if (ids.length > 0) {
         $.getJSON(settings.basePath + 'ding_availability/' + (settings.ding_availability_mode ? settings.ding_availability_mode: 'items') + '/' + ids.join(','), {}, update);
@@ -105,19 +106,23 @@
             //holdings is an object - not array
             length = Object.keys(holdings).length;
           }
-
-          
-          if (length > 0) {
-            $('#' + id).append('<h2>' + Drupal.t('Holdings available on the shelf') + '</h2>');
-            $('#' + id).append('<ul>');
-            var container = $('#' + id + ' ul');
-            $.each(holdings, function(i, holding) {
-              container.append('<li>' + holding + '</li>');
-            });
+	    
+	// always show status for material if html is given.
+        if(Drupal.DADB[entity_id].html){
+          $('#' + id).append('<h2>' + Drupal.t('Status for the material') + '</h2>');
+          $('#' + id).append(Drupal.DADB[entity_id].html) ;
+	} 
+	 // if no  html is given; fallback to old method
+        else if (length > 0) {
+	  $('#' + id).append('<h2>' + Drupal.t('Holdings available on the shelf') + '</h2>');
+	  $('#' + id).append('<ul>');
+          var container = $('#' + id + ' ul');
+          $.each(holdings, function(i, holding) {
+            container.append('<li>' + holding + '</li>');
+          });
           }
         }
       }
-
     }
   };
 
