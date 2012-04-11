@@ -26,10 +26,9 @@
         $('#' + id).addClass('pending');
       });
 
-//	alert(settings.basePath + 'ding_availability/' + (settings.ding_availability_mode ? settings.ding_availability_mode: 'items') + '/' + ids.join(','));	
       // Fetch availability.
       if (ids.length > 0) {
-        $.getJSON(settings.basePath + 'ding_availability/' + (settings.ding_availability_mode ? settings.ding_availability_mode: 'items') + '/' + ids.join(','), {}, update);
+        $.getJSON(settings.basePath + settings.pathPrefix + 'ding_availability/' + (settings.ding_availability_mode ? settings.ding_availability_mode: 'items') + '/' + ids.join(','), {}, update);
       }
       else {
         // Apply already fetched availability
