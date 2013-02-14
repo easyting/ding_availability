@@ -33,7 +33,7 @@
       else {
         // Apply already fetched availability
         $.each(settings.ding_availability, function(id, entity_ids) {
-          updateAvailability(id, entity_ids);
+          updateAvailability(id, entity_ids.ding_status());
         });
       }
 
@@ -45,9 +45,10 @@
 
         $.each(settings.ding_availability, function(id, entity_ids) {
           if (id.match(/^availability-/)) {
+            var status = entity_ids.ding_status();
             // Update availability indicators.
-            updateAvailability(id, entity_ids.ding_status());
-            updateReservation('reservation-' + entity_ids.pop(), entity_ids.ding_status());
+            updateAvailability(id, status);
+            updateReservation('reservation-' + entity_ids[0], status);
           }
           else {
             // Update holding information.
