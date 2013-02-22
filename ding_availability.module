@@ -180,3 +180,28 @@ function ding_availability_preprocess_ting_object_entities(&$variables) {
   }
 }
 
+/**
+ * Implements hook_ding_availability_ajax().
+ */
+function ding_availability_ajax($objects, $prefix = null, $settings = array()) {
+  $data = $ids = array();
+
+  if ($prefix) {
+    foreach ($objects as $object) {
+      if (!($object instanceof TingEntity)) {
+        continue;
+      }
+
+      $ids[] = $id = drupal_html_id($prefix . '-' . $object->id);
+      $data[$id] = array($object->localId);
+    }
+    $settings = array_merge(array('ding_availability' => $data), $settings);
+    drupal_add_js($settings, array('type' => 'setting'));
+  }
+
+  $path = drupal_get_path('module', 'ding_availability');
+  drupal_add_js($path . '/js/ding_availability.js', array('type' => 'file'));
+  drupal_add_css($path . '/css/ding_availability.css', array('type' => 'file'));
+
+  return $ids;
+}

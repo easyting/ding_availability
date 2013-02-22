@@ -81,56 +81,27 @@ function ding_availability_field_formatter_info() {
 function ding_availability_field_formatter_view($entity_type, $entity, $field, $instance, $langcode, $items, $display) {
   $element = array();
   foreach ($items as $delta => $item) {
-    $attached = array(
-      'js' => array(
-        drupal_get_path('module', 'ding_availability') . '/js/ding_availability.js' => array(
-          'type' => 'file',
-        ),
-      ),
-      'css' => array(
-        drupal_get_path('module', 'ding_availability') . '/css/ding_availability.css'
-      ),
-    );
     switch ($field['type']) {
       case 'ding_availability_holdings':
-        // Generate an unique id.
-        $id = drupal_html_id('holdings-' . $entity->id);
-        $attached['js'][1] = array(
-          'data' => array(
-            'ding_availability_mode' => 'holdings',
-            'ding_availability' => array(
-              $id => array($entity->localId),
-            ),
-          ), 'type' => 'setting');
-
+        $ids = module_invoke('ding_availability', 'ajax', array($entity), 'holdings', array('ding_availability_mode' => 'holdings'));
         $element[$delta] = array(
-          '#markup' => '<div id="' . $id . '" class="holdings holdings-' . $entity->localId . '"></div>',
-          '#attached' => $attached,
-      );
-      break;
+          '#markup' => '<div id="' . current($ids) . '" class="holdings holdings-' . $entity->localId . '"></div>',
+        );
+        break;
       case 'ding_availability_item':
+        module_invoke('ding_availability', 'ajax', array($entity));
         $element[$delta] = array(
           '#markup' => '<div class="availability availability-' . $item['provider_id'] . '"></div>',
-          '#attached' => $attached,
         );
         break;
       case 'ting_type':
-        // Generate an unique id.
-        $id = drupal_html_id('availability-' . $entity->id);
-        $attached['js'][1] = array(
-          'data' => array(
-            'ding_availability' => array(
-              $id => array($entity->localId),
-            ),
-          ), 'type' => 'setting');
-
+        $ids = module_invoke('ding_availability', 'ajax', array($entity), 'availability');
         $element[$delta] = array(
           '#theme' => 'item_list',
-          '#attached' => $attached,
           '#items' => array(
             array(
               'data' => $entity->type,
-              'id' => $id,
+              'id' => current($ids),
               'class' => array('availability', drupal_html_class($entity->type)),
             )
           ),
@@ -157,14 +128,9 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
           $id_mapping[$id] = $entities;
         }
 
-        $attached['js'][1] = array(
-          'data' => array(
-            'ding_availability' => $id_mapping,
-          ), 'type' => 'setting');
-
+        module_invoke('ding_availability', 'ajax', array($entity), 'availability', array('ding_availability' => $id_mapping));
         $element[$delta] = array(
           '#theme' => 'item_list',
-          '#attached' => $attached,
           '#items' => $types,
         );
         break;
