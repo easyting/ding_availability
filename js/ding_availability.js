@@ -22,7 +22,7 @@
         });
       });
 
-     $.each(html_ids, function(index, id) {
+      $.each(html_ids, function(index, id) {
         $('#' + id).addClass('pending');
       });
 
@@ -33,7 +33,7 @@
       else {
         // Apply already fetched availability
         $.each(settings.ding_availability, function(id, entity_ids) {
-          updateAvailability(id, entity_ids.ding_status());
+          updateAvailability(id, ding_status(entity_ids));
         });
       }
 
@@ -45,7 +45,7 @@
 
         $.each(settings.ding_availability, function(id, entity_ids) {
           if (id.match(/^availability-/)) {
-            var status = entity_ids.ding_status();
+            var status = ding_status(entity_ids);
             // Update availability indicators.
             updateAvailability(id, status);
             updateReservation('reservation-' + entity_ids[0], status);
@@ -55,29 +55,6 @@
             updateHoldings(id, entity_ids);
           }
         });
-      }
-
-      // Helper method to compute statuses.
-      Array.prototype.ding_status = function () {
-        var available = false;
-        var reservable = false;
-        $.each(this, function(index, entity_id) {
-          if (Drupal.DADB[entity_id]) {
-            available = available || Drupal.DADB[entity_id]['available'];
-            reservable = reservable || Drupal.DADB[entity_id]['reservable'];
-          }
-        });
-
-        return {
-          raw: {
-            available: available,
-            reservable: reservable
-          },
-          available: available && reservable,
-          onloan: !available && reservable,
-          not_reservable: available && !reservable,
-          unavailable: !available && !reservable
-        };
       }
 
       function updateAvailability(id, status) {
@@ -159,8 +136,31 @@
           }
         }
       }
+
+      // Helper method to compute statuses.
+      function ding_status(ids) {
+        var available = false;
+        var reservable = false;
+        $.each(ids, function(index, entity_id) {
+          if (Drupal.DADB[entity_id]) {
+            available = available || Drupal.DADB[entity_id]['available'];
+            reservable = reservable || Drupal.DADB[entity_id]['reservable'];
+          }
+        });
+
+        return {
+          raw: {
+            available: available,
+            reservable: reservable
+          },
+          available: available && reservable,
+          onloan: !available && reservable,
+          not_reservable: available && !reservable,
+          unavailable: !available && !reservable
+        };
+      };
+
     }
   };
 
 })(jQuery);
-
