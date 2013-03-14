@@ -102,7 +102,7 @@ function ding_availability_holdings($provider_ids) {
       if (!in_array(strtolower($entity->getType()), $reservable_types)) {
         $item['reservable'] = FALSE;
        }
-    } catch($e Exception) {
+    } catch(Exception $e) {
       // Keep 'reserveable' as default from provider  FALSE).
     }
 
