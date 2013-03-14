@@ -87,7 +87,7 @@ function ding_availability_holdings($provider_ids) {
     return array();
   }
   $agency = variable_get('ting_agency', '');
-  // Get array of reserveable types defined in backend
+  // Get array of reserveable types defined in backend.
   $reservable_types = variable_get('ting_reservable_types', _ting_default_reservable_types());
   foreach ($items as &$item) {
     $item += array(
@@ -95,13 +95,17 @@ function ding_availability_holdings($provider_ids) {
       'available' => FALSE,
       'holdings' => array(),
     );
-    // Fetch object from Ting, only needed to get its type
-    $entity = ting_get_object_request($agency . ':' . $item['local_id']);
-
-    // If this type is not marked as available for reservation than mark teh item also.
-    if (!in_array(strtolower($entity->getType()), $reservable_types)) {
-      $item['reservable'] = FALSE;
+    try {
+      // Fetch object from Ting, only needed to get its type.
+      $entity = ting_get_object_request($agency . ':' . $item['local_id']);
+      // If this type is not marked as available for reservation than mark the item also.
+      if (!in_array(strtolower($entity->getType()), $reservable_types)) {
+        $item['reservable'] = FALSE;
+       }
+    } catch($e Exception) {
+      // Keep 'reserveable' as default from provider  FALSE).
     }
+
     _ding_availability_text($item);
   }
 
