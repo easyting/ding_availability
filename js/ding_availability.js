@@ -83,13 +83,9 @@
       }
 
       function updateReservation(id, status) {
-        $('#' + id).removeClass('hidden');
-
-        if (status.available) {
-          return;
+        if (status.show_reservation_button) {
+          $('#' + id).removeClass('hidden');
         }
-
-        $('#' + id).html('<span class="not-reservable">' + Drupal.t('Not reservable') + '</span>');
       }
 
       function updateHoldings(id, entity_ids) {
@@ -141,10 +137,12 @@
       function ding_status(ids) {
         var available = false;
         var reservable = false;
+        var show_reservation_button = false;
         $.each(ids, function(index, entity_id) {
           if (Drupal.DADB[entity_id]) {
             available = available || Drupal.DADB[entity_id]['available'];
             reservable = reservable || Drupal.DADB[entity_id]['reservable'];
+            show_reservation_button = show_reservation_button || Drupal.DADB[entity_id]['show_reservation_button'];
           }
         });
 
@@ -156,7 +154,8 @@
           available: available && reservable,
           onloan: !available && reservable,
           not_reservable: available && !reservable,
-          unavailable: !available && !reservable
+          unavailable: !available && !reservable,
+          show_reservation_button: show_reservation_button
         };
       };
 
