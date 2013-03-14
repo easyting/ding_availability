@@ -98,12 +98,12 @@ function ding_availability_holdings($provider_ids) {
     try {
       // Fetch object from Ting, only needed to get its type.
       $entity = ting_get_object_request($agency . ':' . $item['local_id']);
-      // If this type is not marked as available for reservation than mark the item also.
+      // If this type is not marked as available for reservation hide button.
       if (!in_array(strtolower($entity->getType()), $reservable_types)) {
-        $item['reservable'] = FALSE;
+        $item['show_reservation_button'] = FALSE;
        }
     } catch(Exception $e) {
-      // Keep 'reserveable' as default from provider  FALSE).
+      // Keep 'show_reservation_button' as default from provider  FALSE.
     }
 
     _ding_availability_text($item);
