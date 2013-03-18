@@ -85,7 +85,7 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
       case 'ding_availability_holdings':
         $ids = module_invoke('ding_availability', 'ajax', array($entity), 'holdings', array('ding_availability_mode' => 'holdings'));
         $element[$delta] = array(
-          '#markup' => '<div id="' . current($ids) . '" class="holdings holdings-' . $entity->localId . '"></div>',
+          '#markup' => ($entity->type !== 'Tidsskrift') ? '<div id="' . current($ids) . '" class="holdings holdings-' . $entity->localId . '"></div>' : '',
         );
         break;
       case 'ding_availability_item':
