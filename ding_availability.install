@@ -26,7 +26,7 @@ function ding_availability_ding_entity_fields() {
 
 /**
  * Implements hook_update_N().
- * 
+ *
  * Convert blackhole field storage to virtual field.
  */
 function ding_availability_update_7000() {
