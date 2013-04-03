@@ -121,14 +121,9 @@
             $('#' + id).append('<h2>' + Drupal.t('Status for the material') + '</h2>');
             $('#' + id).append(Drupal.DADB[entity_id].html) ;
           }
-           // if no  html is given; fallback to old method
+          // if no html is given; this is exceptional situation.
           else if (length > 0) {
-            $('#' + id).append('<h2>' + Drupal.t('Holdings available on the shelf') + '</h2>');
-            $('#' + id).append('<ul>');
-            var container = $('#' + id + ' ul');
-            $.each(holdings, function(i, holding) {
-              container.append('<li>' + holding + '</li>');
-            });
+            $('#' + id).append('<h2>' + Drupal.t('No holdings available') + '</h2>');
           }
         }
       }
