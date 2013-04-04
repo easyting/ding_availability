@@ -14,7 +14,7 @@ function ding_availability_ding_entity_fields() {
       'field' => array(
         'locked' => TRUE,
         'storage' => array(
-          'type' => 'virtual_field',
+          'type' => 'blackhole',
         ),
       ),
       'instance' => array(
@@ -24,17 +24,3 @@ function ding_availability_ding_entity_fields() {
   );
 }
 
-/**
- * Implements hook_update_N().
- * 
- * Convert blackhole field storage to virtual field.
- */
-function ding_availability_update_7000() {
-  return db_update('field_config')
-    ->fields(array(
-      'storage_type' => 'virtual_field',
-      'storage_module' => 'virtual_field',
-    ))
-    ->condition('module', 'ding_availability')
-    ->execute();
-}

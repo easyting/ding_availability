@@ -57,7 +57,7 @@ function ding_availability_field_formatter_info() {
       'label' => t('Default'),
       'field types' => array(
         'ding_availability_item',
-        'ding_availability_holdings'
+        'ding_availability_holdings',
       ),
     ),
     'ding_availability_type' => array(
@@ -103,7 +103,7 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
               'data' => $entity->type,
               'id' => current($ids),
               'class' => array('availability', drupal_html_class($entity->type)),
-            )
+            ),
           ),
         );
         break;
