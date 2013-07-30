@@ -118,9 +118,19 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
         foreach ($typed_entities as $type => $entities) {
           // Generate an unique id.
           $id = drupal_html_id('availability-' . $entity->id . '-' . $type);
-          // Create a list element for each type.
+          global $base_url;
+
+          // Determine if this is an Object or a Collection.
+          if (count($entities) == 1) {
+            $entity_link = $base_url . '/ting/object/' . $entity->ding_entity_id;
+          }
+          else {
+            $entity_link = $base_url . '/ting/collection/' . $entity->ding_entity_id;
+          }
+
+          // Create a list of links for each type.
           $types[] = array(
-            'data' => $type,
+            'data' => l($type, $entity_link),
             'id' => $id,
             'class' => array('availability', drupal_html_class($type)),
           );
