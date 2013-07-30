@@ -28,21 +28,22 @@
 
       // Fetch availability.
       if (ids.length > 0) {
-        $.getJSON(settings.basePath + settings.pathPrefix + 'ding_availability/' + (settings.ding_availability_mode ? settings.ding_availability_mode: 'items') + '/' + ids.join(','), {}, update);
-      }
-      else {
-        // Apply already fetched availability
-        $.each(settings.ding_availability, function(id, entity_ids) {
-          updateAvailability(id, ding_status(entity_ids));
+        var url = settings.basePath + settings.pathPrefix + 'ding_availability/' + (settings.ding_availability_mode ? settings.ding_availability_mode: 'items') + '/' + ids.join(',');
+        $.getJSON(url, {}, function (data, textData) {
+          $.each(data, function(id, item) {
+            // Update cache.
+            Drupal.DADB[id] = item;
+          });
+
+          update();
         });
       }
 
-      function update(data, textData) {
-        $.each(data, function(id, item) {
-          // Update cache.
-          Drupal.DADB[id] = item;
-        });
+      update();
 
+      // end of initialization.
+
+      function update() {
         $.each(settings.ding_availability, function(id, entity_ids) {
           if (id.match(/^availability-/)) {
             var status = ding_status(entity_ids);
@@ -84,7 +85,7 @@
 
       function updateReservation(id, status) {
         if (status.show_reservation_button) {
-          $('#' + id).removeClass('hidden');
+          $('#' + id).removeClass('hidden').attr('id', 'processed-' + id);
         }
       }
 
