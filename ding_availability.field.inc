@@ -110,9 +110,12 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
       case 'ting_collection_types':
         $id_mapping = array();
         $typed_entities = array();
+        $typed_entities_ids = array();
         // Sort entities into type -> ids.
         foreach ($entity->entities as $ent) {
           $typed_entities[$ent->type][] = $ent->localId;
+          // Add entity id to create the link afterwards.
+          $typed_entities_ids[$ent->type] = $ent->id;
         }
 
         foreach ($typed_entities as $type => $entities) {
@@ -120,12 +123,13 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
           $id = drupal_html_id('availability-' . $entity->id . '-' . $type);
           global $base_url;
 
-          // Determine if this is an Object or a Collection.
+          $entity_link = '';
+          // Determine if the entity contains more than 1 objects
           if (count($entities) == 1) {
-            $entity_link = $base_url . '/ting/object/' . $entity->ding_entity_id;
+            $entity_link = $base_url . '/ting/object/' . $typed_entities_ids[$type];
           }
           else {
-            $entity_link = $base_url . '/ting/collection/' . $entity->ding_entity_id;
+            $entity_link = $base_url . '/ting/collection/' . $typed_entities_ids[$type];
           }
 
           // Create a list of links for each type.
