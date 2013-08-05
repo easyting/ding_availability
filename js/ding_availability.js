@@ -117,7 +117,7 @@
           }
 
           // show status for material if total_count is more than zero and html is given.
-          if (Drupal.DADB[entity_id].html && Drupal.DADB[entity_id].total_count > 0) {
+          if (Drupal.DADB[entity_id].html) {
             $('#' + id).append('<h2>' + Drupal.t('Status for the material') + '</h2>');
             $('#' + id).append(Drupal.DADB[entity_id].html) ;
           }
