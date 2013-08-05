@@ -87,7 +87,14 @@
 
       function updateReservation(id, status) {
         if (status.show_reservation_button) {
-          $('#' + id).removeClass('hidden').attr('id', 'processed-' + id);
+          var local_id = id.match(/^reservation-(.+)/);
+          $('#' + id)
+            .removeClass('hidden')
+            .attr('id', 'processed-' + id)
+
+          // Display reservation button for the collection.
+          $('.reservation-link-ajax.hidden.for-item-' + local_id[1] + ', .page-ting-collection .reservation-link-ajax.hidden')
+            .removeClass('hidden');
         }
       }
 
