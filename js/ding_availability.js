@@ -35,15 +35,15 @@
             Drupal.DADB[id] = item;
           });
 
-          update(false);
+          update(true);
         });
       }
 
-      update(true);
+      update(false);
 
       // end of initialization.
 
-      function update(updateHoldings) {
+      function update(update_holdings) {
         $.each(settings.ding_availability, function(id, entity_ids) {
           if (id.match(/^availability-/)) {
             var status = ding_status(entity_ids);
@@ -53,7 +53,7 @@
           }
           else {
             // Update holding information.
-            if (updateHoldings) {
+            if (update_holdings) {
               updateHoldings(id, entity_ids);
             }
           }
