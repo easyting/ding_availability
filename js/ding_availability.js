@@ -93,7 +93,7 @@
             .attr('id', 'processed-' + id)
 
           // Display reservation button for the collection.
-          $('.reservation-link-ajax.hidden.for-item-' + local_id[1] + ', .page-ting-collection .reservation-link-ajax.hidden')
+          $('.reservation-link-ajax.hidden.for-item-' + local_id[1] + ', .page-ting-collection .field-type-ting-primary-object .reservation-link-ajax.hidden')
             .removeClass('hidden');
         }
       }
