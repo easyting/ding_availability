@@ -100,41 +100,14 @@
 
       function updateHoldings(id, entity_ids) {
         var entity_id = entity_ids.pop();
-        if (Drupal.DADB[entity_id] && (Drupal.DADB[entity_id]['holdings'] || Drupal.DADB[entity_id]['holdings_available'])) {
-          var holdings;
-          var length;
 
-          // Use holdings_available, if set and entity is not a periodical.
-          if (Drupal.DADB[entity_id]['holdings_available'] && !Drupal.DADB[entity_id]['is_periodical'] ) {
-              holdings = Drupal.DADB[entity_id]['holdings_available'];
-              length = holdings.length;
-          }
-          else {
-            holdings = Drupal.DADB[entity_id]['holdings'];
-            //holdings is an object - not array
-            Object.keys = Object.keys || function(o) {
-              var result = [];
-              for (var name in o) {
-                if (o.hasOwnProperty(name)) {
-                  result.push(name);
-                }
-              }
-
-              return result;
-            };
-
-            length = Object.keys(holdings).length;
-          }
-
-          // show status for material if total_count is more than zero and html is given.
-          if (Drupal.DADB[entity_id].html) {
+        if (Drupal.DADB != undefined && Drupal.DADB[entity_id] != undefined && Drupal.DADB[entity_id].html != undefined && Drupal.DADB[entity_id]['holdings'].length > 0) {
             $('#' + id).append('<h2>' + Drupal.t('Status for the material') + '</h2>');
-            $('#' + id).append(Drupal.DADB[entity_id].html) ;
-          }
-          // if no html is given; this is exceptional situation.
-          else if (length > 0) {
-            $('#' + id).append('<h2>' + Drupal.t('No holdings available') + '</h2>');
-          }
+            $('#' + id).append(Drupal.DADB[entity_id].html);
+        }
+        // if no html is given; this is exceptional situation.
+        else if (Drupal.DADB == undefined || Drupal.DADB[entity_id] == undefined || Drupal.DADB[entity_id]['holdings'].length == 0) {
+          $('#' + id).append('<h2>' + Drupal.t('No holdings available') + '</h2>');
         }
       }
 
