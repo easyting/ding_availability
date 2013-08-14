@@ -28,21 +28,22 @@
 
       // Fetch availability.
       if (ids.length > 0) {
-        $.getJSON(settings.basePath + settings.pathPrefix + 'ding_availability/' + (settings.ding_availability_mode ? settings.ding_availability_mode: 'items') + '/' + ids.join(','), {}, update);
-      }
-      else {
-        // Apply already fetched availability
-        $.each(settings.ding_availability, function(id, entity_ids) {
-          updateAvailability(id, ding_status(entity_ids));
+        var url = settings.basePath + settings.pathPrefix + 'ding_availability/' + (settings.ding_availability_mode ? settings.ding_availability_mode: 'items') + '/' + ids.join(',');
+        $.getJSON(url, {}, function (data, textData) {
+          $.each(data, function(id, item) {
+            // Update cache.
+            Drupal.DADB[id] = item;
+          });
+
+          update(true);
         });
       }
 
-      function update(data, textData) {
-        $.each(data, function(id, item) {
-          // Update cache.
-          Drupal.DADB[id] = item;
-        });
+      update(false);
 
+      // end of initialization.
+
+      function update(update_holdings) {
         $.each(settings.ding_availability, function(id, entity_ids) {
           if (id.match(/^availability-/)) {
             var status = ding_status(entity_ids);
@@ -52,7 +53,9 @@
           }
           else {
             // Update holding information.
-            updateHoldings(id, entity_ids);
+            if (update_holdings) {
+              updateHoldings(id, entity_ids);
+            }
           }
         });
       }
@@ -84,47 +87,27 @@
 
       function updateReservation(id, status) {
         if (status.show_reservation_button) {
-          $('#' + id).removeClass('hidden');
+          var local_id = id.match(/^reservation-(.+)/);
+          $('#' + id)
+            .removeClass('hidden')
+            .attr('id', 'processed-' + id)
+
+          // Display reservation button for the collection.
+          $('.reservation-link-ajax.hidden.for-item-' + local_id[1] + ', .page-ting-collection .field-type-ting-primary-object .reservation-link-ajax.hidden')
+            .removeClass('hidden');
         }
       }
 
       function updateHoldings(id, entity_ids) {
         var entity_id = entity_ids.pop();
-        if (Drupal.DADB[entity_id] && (Drupal.DADB[entity_id]['holdings'] || Drupal.DADB[entity_id]['holdings_available'])) {
-          var holdings;
-          var length;
 
-          // Use holdings_available, if set and entity is not a periodical.
-          if (Drupal.DADB[entity_id]['holdings_available'] && !Drupal.DADB[entity_id]['is_periodical'] ) {
-              holdings = Drupal.DADB[entity_id]['holdings_available'];
-              length = holdings.length;
-          }
-          else {
-            holdings = Drupal.DADB[entity_id]['holdings'];
-            //holdings is an object - not array
-            Object.keys = Object.keys || function(o) {
-              var result = [];
-              for (var name in o) {
-                if (o.hasOwnProperty(name)) {
-                  result.push(name);
-                }
-              }
-
-              return result;
-            };
-
-            length = Object.keys(holdings).length;
-          }
-
-          // show status for material if total_count is more than zero and html is given.
-          if (Drupal.DADB[entity_id].html && Drupal.DADB[entity_id].total_count > 0) {
+        if (Drupal.DADB[entity_id] != undefined && Drupal.DADB[entity_id].html != undefined && Drupal.DADB[entity_id]['holdings'].length > 0) {
             $('#' + id).append('<h2>' + Drupal.t('Status for the material') + '</h2>');
-            $('#' + id).append(Drupal.DADB[entity_id].html) ;
-          }
-          // if no html is given; this is exceptional situation.
-          else if (length > 0) {
-            $('#' + id).append('<h2>' + Drupal.t('No holdings available') + '</h2>');
-          }
+            $('#' + id).append(Drupal.DADB[entity_id].html);
+        }
+        // if no html is given; this is exceptional situation.
+        else if (Drupal.DADB[entity_id] == undefined || Drupal.DADB[entity_id]['holdings'].length == 0) {
+          $('#' + id).append('<h2>' + Drupal.t('No holdings available') + '</h2>');
         }
       }
 
