@@ -105,10 +105,6 @@
             $('#' + id).append('<h2>' + Drupal.t('Status for the material') + '</h2>');
             $('#' + id).append(Drupal.DADB[entity_id].html);
         }
-        // if no html is given; this is exceptional situation.
-        else if (Drupal.DADB[entity_id] == undefined || Drupal.DADB[entity_id]['holdings'].length == 0) {
-          $('#' + id).append('<h2>' + Drupal.t('No holdings available') + '</h2>');
-        }
       }
 
       // Helper method to compute statuses.
