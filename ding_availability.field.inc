@@ -82,70 +82,66 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
   $element = array();
   foreach ($items as $delta => $item) {
     switch ($field['type']) {
+      // Holdings table.
       case 'ding_availability_holdings':
-        $ids = module_invoke('ding_availability', 'ajax', array($entity), 'holdings', array('ding_availability_mode' => 'holdings'));
         $element[$delta] = array(
-          '#markup' => ($entity->type !== 'Tidsskrift') ? '<div id="' . current($ids) . '" class="holdings holdings-' . $entity->localId . '"></div>' : '',
+          '#markup' => ($entity->type !== 'Tidsskrift') ? '<div id="" class="ting-item-holdings holdings holdings-' . $entity->localId . '"></div>' : '',
+          '#attached' => array(
+            'js' => array(
+              drupal_get_path('module', 'ding_availability') . '/js/ding_availability.holdings.js',
+            ),
+          ),
         );
         break;
+      // Unknown purpose.
       case 'ding_availability_item':
-        module_invoke('ding_availability', 'ajax', array($entity));
         $element[$delta] = array(
           '#markup' => '<div class="availability availability-' . $item['provider_id'] . '"></div>',
         );
         break;
+      // Item page usage.
       case 'ting_type':
-        $ids = module_invoke('ding_availability', 'ajax', array($entity), 'availability');
         $element[$delta] = array(
           '#theme' => 'item_list',
           '#items' => array(
             array(
               'data' => $entity->type,
-              'id' => current($ids),
-              'class' => array('availability', drupal_html_class($entity->type)),
+              'class' => array('ting-item-type availability availability-' . $entity->localId, drupal_html_class($entity->type)),
+            ),
+          ),
+         '#attached' => array(
+            'js' => array(
+              drupal_get_path('module', 'ding_availability') . '/js/ding_availability.availability.js',
+            ),
+            'css' => array(
+              drupal_get_path('module', 'ding_availability') . '/css/ding_availability.css',
             ),
           ),
         );
         break;
+      // Search result usage.
       case 'ting_collection_types':
-        $id_mapping = array();
-        $typed_entities = array();
-        $typed_entities_ids = array();
-        // Sort entities into type -> ids.
         foreach ($entity->entities as $ent) {
-          $typed_entities[$ent->type][] = $ent->localId;
-          // Add entity id to create the link afterwards.
-          $typed_entities_ids[$ent->type] = $ent->id;
-        }
-
-        foreach ($typed_entities as $type => $entities) {
-          // Generate an unique id.
-          $id = drupal_html_id('availability-' . $entity->id . '-' . $type);
-          global $base_url;
-
-          $entity_link = '';
-          // Determine if the entity contains more than 1 objects
-          if (count($entities) == 1) {
-            $entity_link = $base_url . '/ting/object/' . $typed_entities_ids[$type];
-          }
-          else {
-            $entity_link = $base_url . '/ting/collection/' . $typed_entities_ids[$type];
-          }
+          $entity_link = 'ting/object/' . $ent->id;
 
           // Create a list of links for each type.
           $types[] = array(
-            'data' => l($type, $entity_link),
-            'id' => $id,
-            'class' => array('availability', drupal_html_class($type)),
+            'data' => l($ent->type, $entity_link),
+            'class' => array('ting-item-type availability availability-' . $ent->localId, drupal_html_class($ent->type)),
           );
-          // Map the HTML id to the list of entity ids.
-          $id_mapping[$id] = $entities;
         }
 
-        module_invoke('ding_availability', 'ajax', array($entity), 'availability', array('ding_availability' => $id_mapping));
         $element[$delta] = array(
           '#theme' => 'item_list',
           '#items' => $types,
+          '#attached' => array(
+            'js' => array(
+              drupal_get_path('module', 'ding_availability') . '/js/ding_availability.availability.js',
+            ),
+            'css' => array(
+              drupal_get_path('module', 'ding_availability') . '/css/ding_availability.css',
+            ),
+          ),
         );
         break;
     }
