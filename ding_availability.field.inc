@@ -85,7 +85,7 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
       // Holdings table.
       case 'ding_availability_holdings':
         $element[$delta] = array(
-          '#markup' => ($entity->type !== 'Tidsskrift') ? '<div id="" class="ting-item-holdings holdings holdings-' . $entity->localId . '"></div>' : '',
+          '#markup' => ($entity->type !== 'Tidsskrift') ? '<div class="ting-item-holdings holdings holdings-' . $entity->localId . '"></div>' : '',
           '#attached' => array(
             'js' => array(
               drupal_get_path('module', 'ding_availability') . '/js/ding_availability.holdings.js',
