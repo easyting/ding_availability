@@ -3,7 +3,6 @@
  * @file
  * Availability information for ding objects.
  */
-
 // Load Field module hooks.
 module_load_include('inc', 'ding_availability', 'ding_availability.field');
 
@@ -11,15 +10,19 @@ module_load_include('inc', 'ding_availability', 'ding_availability.field');
  * Implements hook_menu().
  */
 function ding_availability_menu() {
-  $items['ding_availability/items'] = array(
-    'title' => 'Availability status',
-    'page callback' => 'ding_availability_js',
+  $items['ding_availability/issues'] = array(
+    'page callback' => 'ding_availability_issues_js',
+    'access arguments' => array('access content'),
+    'type' => MENU_CALLBACK,
+  );
+
+  $items['ding_availability/availability'] = array(
+    'page callback' => 'ding_availability_availability_js',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
   );
 
   $items['ding_availability/holdings'] = array(
-    'title' => 'Availability and holding status',
     'page callback' => 'ding_availability_holdings_js',
     'access arguments' => array('access content'),
     'type' => MENU_CALLBACK,
@@ -41,15 +44,30 @@ function ding_availability_ding_provider_user() {
 }
 
 /**
- * Ajax handler method.
- * Returns JSON with information if item(s) is reserveable.
+ * AJAX handler for issues retrieval.
+ *
+ * @param string $provider_ids
+ *   Comma separated item id's.
  */
-function ding_availability_js($provider_ids) {
+function ding_availability_issues_js($provider_ids) {
   drupal_json_output(ding_availability_items(explode(',', $provider_ids)));
 }
 
 /**
+ * AJAX handler for availability retrieval.
  *
+ * @param string $provider_ids
+ *   Comma separated item id's.
+ */
+function ding_availability_availability_js($provider_ids) {
+  drupal_json_output(ding_availability_availability(explode(',', $provider_ids)));
+}
+
+/**
+ * AJAX handler for holdings retrieval.
+ *
+ * @param string $provider_ids
+ *   Comma separated item id's.
  */
 function ding_availability_holdings_js($provider_ids) {
   drupal_json_output(ding_availability_holdings(explode(',', $provider_ids)));
@@ -57,58 +75,45 @@ function ding_availability_holdings_js($provider_ids) {
 
 /**
  * Fetch information if item is available/reservable.
- */
-function ding_availability_items($provider_ids) {
-  if (ding_provider_implements('availability', 'items')) {
-    $items = ding_provider_invoke('availability', 'items', $provider_ids);
-    if (!$items) {
-      return array();
-    }
-    foreach ($items as &$item) {
-      $item += array(
-        'reservable' => FALSE,
-        'available' => FALSE,
-      );
-      _ding_availability_text($item);
-    }
-  }
-  else {
-    $items = ding_availability_holdings($provider_ids);
-  }
-  return $items;
-}
-
-/**
  *
+ * @param array
+ *   Array of item id's.
+ *
+ * @return array
+ *   Array with item availability information.
  */
-function ding_availability_holdings($provider_ids) {
-  $items = ding_provider_invoke('availability', 'holdings', $provider_ids);
-  if (!$items) {
-    return array();
-  }
-  $agency = variable_get('ting_agency', '');
-  // Get array of reserveable types defined in backend.
+function ding_availability_availability($provider_ids) {
+  $items = ding_provider_invoke('availability', 'availability', $provider_ids);
+
   $reservable_types = variable_get('ting_reservable_types', _ting_default_reservable_types());
+  $agency = variable_get('ting_agency', '');
+
+  // Since the ids came without agency number, prepend it so Ting! actually finds something.
+  $ting_ids = array_keys($items);
+  foreach ($ting_ids as &$id) {
+    $id = $agency . ':' . $id;
+  }
+
+  // Single request is much faster...
+  $entities = ting_get_objects($ting_ids);
+
   foreach ($items as &$item) {
-    $item += array(
-      'reservable' => FALSE,
-      'available' => FALSE,
-      'holdings' => array(),
-    );
-    try {
-      // Fetch object from Ting, only needed to get its type.
-      $entity = ting_get_object_request($agency . ':' . $item['local_id']);
-      // If this type is not marked as available for reservation hide button.
-      if ($entity != NULL && !in_array(strtolower($entity->getType()), $reservable_types)) {
-        $item['show_reservation_button'] = FALSE;
-       }
-    }
-    catch(Exception $e) {
-      // Keep 'show_reservation_button' as default from provider  FALSE.
+    $entity = $entities[$agency . ':' . $item['local_id']];
+    if ($entity != NULL && !in_array(strtolower($entity->getType()), $reservable_types)) {
+      $item['show_reservation_button'] = FALSE;
     }
 
     _ding_availability_text($item);
   }
+
+  return $items;
+}
+
+/**
+ * Fetch information about item's holdings.
+ */
+function ding_availability_holdings($provider_ids) {
+  $items = ding_provider_invoke('availability', 'holdings', $provider_ids);
 
   return $items;
 }
@@ -130,7 +135,6 @@ function _ding_availability_text(&$item) {
     $item['status'] = t('unavailable');
   }
 }
-
 
 /**
  * Implements hook_block_info().
@@ -166,10 +170,10 @@ function ding_availability_render_legend() {
   $image_path = drupal_get_path('module', 'ding_availability') . '/images/blank.gif';
 
   // make some text, image's alt & title tags (SEO, accessibility)
-  $availability_legend['available']     = t('Available');
-  $availability_legend['on-loan']       = t('On loan');
-  $availability_legend['unavailable']   = t('Unavailable');
-  $availability_legend['unreservable']   = t('Not reservable');
+  $availability_legend['available'] = t('Available');
+  $availability_legend['on-loan'] = t('On loan');
+  $availability_legend['unavailable'] = t('Unavailable');
+  $availability_legend['unreservable'] = t('Not reservable');
 
   // render image html using theme_image (returns NULL if file doesn't exist)
   foreach ($availability_legend as $key => $val) {
@@ -180,7 +184,6 @@ function ding_availability_render_legend() {
   $format_items[] = '<div class="clearfix"></div>';
 
   return '<div class="availability-legend">' . implode($format_items) . '</div>';
-
 }
 
 /**
@@ -193,30 +196,4 @@ function ding_availability_preprocess_ting_object_entities(&$variables) {
       '#weight' => -10,
     );
   }
-}
-
-/**
- * Implements hook_ding_availability_ajax().
- */
-function ding_availability_ajax($objects, $prefix = null, $settings = array()) {
-  $data = $ids = array();
-
-  if ($prefix) {
-    foreach ($objects as $object) {
-      if (!($object instanceof TingEntity)) {
-        continue;
-      }
-
-      $ids[] = $id = drupal_html_id($prefix . '-' . $object->id);
-      $data[$id] = array($object->localId);
-    }
-    $settings = array_merge(array('ding_availability' => $data), $settings);
-    drupal_add_js($settings, array('type' => 'setting'));
-  }
-
-  $path = drupal_get_path('module', 'ding_availability');
-  drupal_add_js($path . '/js/ding_availability.js', array('type' => 'file'));
-  drupal_add_css($path . '/css/ding_availability.css', array('type' => 'file'));
-
-  return $ids;
 }
