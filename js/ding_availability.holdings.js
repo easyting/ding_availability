@@ -5,16 +5,18 @@
 (function($) {
   Drupal.behaviors.dingAvailabilityHoldingsAttach = {
     attach: function(context, settings) {
-      var item_type = $('.ting-item-holdings');
-      var ids = new Array(item_type.length);
+      var ele = $('.ting-item-holdings');
+      var ids = new Array(ele.length);
+      var run_request = false;
 
-      item_type.each(function(i, e) {
-        var match = $(e).attr('class').match(/holdings-(\d+)/);
+      $(ele, context).once('ajax-holdings', function(i, e) {
+        var match = $(e).attr('class').match(/holdings-([\w\d]+)/);
         ids[i] = match[1];
+        run_request = true;
       });
 
       // Fetch availability.
-      if (ids.length > 0) {
+      if (run_request) {
         var url = settings.basePath + settings.pathPrefix + 'ding_availability/holdings/' + ids.join(',');
 
         $.ajax({
@@ -23,8 +25,8 @@
           dataType: 'json',
           success: function(response) {
             $.each(response, function(i, e) {
-              if (e.html != undefined) {
-                $('.ting-item-holdings.holdings-' + i).append(e.html);
+              if (e.html !== undefined) {
+                $('.ting-item-holdings.holdings-' + i).append('<h2>' + Drupal.t('Status for the material') + '</h2>').append(e.html);
               }
             });
           }
