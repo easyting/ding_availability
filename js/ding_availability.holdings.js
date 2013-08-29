@@ -5,14 +5,17 @@
 (function($) {
   Drupal.behaviors.dingAvailabilityHoldingsAttach = {
     attach: function(context, settings) {
-      var ele = $('.ting-item-holdings');
+      var ele = $('.ting-item-holdings').not('.ajax-holdings-processed');
       var ids = new Array(ele.length);
       var run_request = false;
 
       $(ele, context).once('ajax-holdings', function(i, e) {
         var match = $(e).attr('class').match(/holdings-([\w\d]+)/);
-        ids[i] = match[1];
-        run_request = true;
+
+        if (match && match[1] !== undefined) {
+          ids[i] = match[1];
+          run_request = true;
+        }
       });
 
       // Fetch availability.
