@@ -5,16 +5,18 @@
 (function($) {
   Drupal.behaviors.dingAvailabilityAttach = {
     attach: function(context, settings) {
-      var item_type = $('.ting-item-type');
-      var ids = new Array(item_type.length);
+      var ele = $('.ting-item-type');
+      var ids = new Array(ele.length);
+      var run_request = false;
 
-      item_type.each(function(i, e) {
-        var match = $(e).addClass('pending').attr('class').match(/availability-(\d+)/);
+      $(ele, context).once('ajax-availability', function(i, e) {
+        var match = $(e).addClass('pending').attr('class').match(/availability-([\w\d]+)\s/);
         ids[i] = match[1];
+        run_request = true;
       });
 
       // Fetch availability.
-      if (ids.length > 0) {
+      if (run_request) {
         var url = settings.basePath + settings.pathPrefix + 'ding_availability/availability/' + ids.join(',');
 
         $.ajax({
@@ -22,7 +24,7 @@
           url: url,
           dataType: 'json',
           success: function(response) {
-            item_type.removeClass('pending').addClass('processed');
+            ele.removeClass('pending').addClass('processed');
 
             var status = null;
             $.each(response, function(i, e) {
