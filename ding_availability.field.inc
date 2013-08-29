@@ -127,7 +127,7 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
         foreach ($entity->entities as $ent) {
           $typed_entities[$ent->type][] = $ent->localId;
           // Add entity id to create the link afterwards.
-          $typed_entities_ids[$ent->type] = $ent->id;
+          $typed_entities_ids[$ent->type] = $ent->localId;
         }
 
         foreach ($typed_entities as $type => $entities) {
@@ -148,7 +148,7 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
           $types[] = array(
             'data' => l($type, $entity_link),
             'id' => $id,
-            'class' => array('ting-item-type availability availability-' . $ent->localId, drupal_html_class($ent->type)),
+            'class' => array('ting-item-type availability availability-' . $typed_entities_ids[$type], drupal_html_class($type)),
           );
         }
 

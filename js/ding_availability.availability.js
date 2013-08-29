@@ -5,14 +5,17 @@
 (function($) {
   Drupal.behaviors.dingAvailabilityAttach = {
     attach: function(context, settings) {
-      var ele = $('.ting-item-type');
+      var ele = $('.ting-item-type').not('.ajax-availability-processed');
       var ids = new Array(ele.length);
       var run_request = false;
 
       $(ele, context).once('ajax-availability', function(i, e) {
         var match = $(e).addClass('pending').attr('class').match(/availability-([\w\d]+)\s/);
-        ids[i] = match[1];
-        run_request = true;
+
+        if (match && match[1] !== undefined) {
+          ids[i] = match[1];
+          run_request = true;
+        }
       });
 
       // Fetch availability.
