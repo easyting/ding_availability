@@ -121,13 +121,34 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
         break;
       // Search result usage.
       case 'ting_collection_types':
+        $typed_entities = array();
+        $typed_entities_ids = array();
+        // Sort entities into type -> ids.
         foreach ($entity->entities as $ent) {
-          $entity_link = 'ting/object/' . $ent->id;
+          $typed_entities[$ent->type][] = $ent->localId;
+          // Add entity id to create the link afterwards.
+          $typed_entities_ids[$ent->type]['id'] = $ent->id;
+          $typed_entities_ids[$ent->type]['local_id'] = $ent->localId;
+        }
+
+        foreach ($typed_entities as $type => $entities) {
+          // Generate an unique id.
+          $id = drupal_html_id('availability-' . $entity->id . '-' . $type);
+
+          $entity_link = '';
+          // Determine if the entity contains more than 1 objects
+          if (count($entities) == 1) {
+            $entity_link = 'ting/object/' . $typed_entities_ids[$type]['id'];
+          }
+          else {
+            $entity_link = 'ting/collection/' . $typed_entities_ids[$type]['id'];
+          }
 
           // Create a list of links for each type.
           $types[] = array(
-            'data' => l($ent->type, $entity_link),
-            'class' => array('ting-item-type availability availability-' . $ent->localId, drupal_html_class($ent->type)),
+            'data' => l($type, $entity_link),
+            'id' => $id,
+            'class' => array('ting-item-type availability availability-' . $typed_entities_ids[$type]['local_id'], drupal_html_class($type)),
           );
         }
 
