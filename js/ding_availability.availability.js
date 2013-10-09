@@ -20,21 +20,10 @@
 
       // Fetch availability.
       if (run_request) {
-        var url = settings.basePath + settings.pathPrefix + 'ding_availability/availability/' + ids.join(',');
-
-        $.ajax({
-          type: 'get',
-          url: url,
-          dataType: 'json',
-          success: function(response) {
-            ele.removeClass('pending').addClass('processed');
-
-            var status = null;
-            $.each(response, function(i, e) {
-              status = setDingStatus(e);
-              updateAvailability(i, status);
-            });
-          }
+        ele.removeClass('pending').addClass('processed');
+        DingAvailability.process('availability', ids, function (id, data) {
+          var status = setDingStatus(data);
+          updateAvailability(id, status);
         });
       }
 
