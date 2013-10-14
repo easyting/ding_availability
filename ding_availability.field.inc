@@ -111,6 +111,7 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
           ),
          '#attached' => array(
             'js' => array(
+              drupal_get_path('module', 'ding_availability') . '/js/ding_availability_lib.js',
               drupal_get_path('module', 'ding_availability') . '/js/ding_availability.availability.js',
             ),
             'css' => array(
@@ -157,6 +158,7 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
           '#items' => $types,
           '#attached' => array(
             'js' => array(
+              drupal_get_path('module', 'ding_availability') . '/js/ding_availability_lib.js',
               drupal_get_path('module', 'ding_availability') . '/js/ding_availability.availability.js',
             ),
             'css' => array(
