@@ -126,6 +126,9 @@ function ding_availability_field_formatter_view($entity_type, $entity, $field, $
         $typed_entities_ids = array();
         // Sort entities into type -> ids.
         foreach ($entity->entities as $ent) {
+          if (!$ent->type) {
+            $ent->type = '';
+          }
           $typed_entities[$ent->type][] = $ent->localId;
           // Add entity id to create the link afterwards.
           $typed_entities_ids[$ent->type]['id'] = $ent->id;
