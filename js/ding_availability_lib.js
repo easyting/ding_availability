@@ -2,7 +2,8 @@ DingAvailability = {
   running: false,
   availability_cache: {},
   holdings_cache: {},
-  queue: []
+  queue: [],
+  max_process: 20
 };
 
 /**
@@ -20,6 +21,13 @@ DingAvailability.process = function (type, ids, callback) {
   if (DingAvailability.running) {
     DingAvailability.queue.push({type: type, ids: ids, callback: callback});
     return;
+  }
+
+  // Limit number of items to process per call.
+  if (ids.length > DingAvailability.max_process) {
+    var queue = ids.slice(DingAvailability.max_process);
+    ids = ids.slice(0, DingAvailability.max_process);
+    DingAvailability.queue.push({type: type, ids: queue, callback: callback});
   }
 
   DingAvailability.running = true;
